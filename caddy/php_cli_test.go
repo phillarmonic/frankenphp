@@ -10,14 +10,6 @@ import (
 )
 
 func TestPHPCLIFlagParsing(t *testing.T) {
-	// Create a test command to verify flag parsing
-	testCmd := &cobra.Command{
-		Use: "test",
-	}
-
-	// Add the same flags as our php-cli command
-	testCmd.Flags().StringArrayP("define", "d", []string{}, "Define INI entry (key=value)")
-
 	// Test parsing various -d flag combinations
 	tests := []struct {
 		name     string
@@ -59,8 +51,11 @@ func TestPHPCLIFlagParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Reset flags
-			testCmd.Flags().Set("define", "")
+			// Create a fresh command for each test to avoid flag accumulation
+			testCmd := &cobra.Command{
+				Use: "test",
+			}
+			testCmd.Flags().StringArrayP("define", "d", []string{}, "Define INI entry (key=value)")
 
 			// Parse the arguments
 			testCmd.SetArgs(tt.args)

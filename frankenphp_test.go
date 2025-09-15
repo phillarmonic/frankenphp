@@ -731,11 +731,6 @@ func TestExecuteCLICode(t *testing.T) {
 }
 
 func TestExecuteCLIWithIniSettings(t *testing.T) {
-	// Test that -d flags work with the CLI execution
-	// This would test the actual FrankenPHP binary with -d flags
-	// Note: This test would require the full FrankenPHP binary to be built
-	// For now, we'll test the core functionality through unit tests
-
 	// Test ini setting parsing logic directly
 	defines := []string{"memory_limit=256M", "display_errors=1", "max_execution_time"}
 	phpIni := make(map[string]string)
