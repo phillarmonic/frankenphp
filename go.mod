@@ -8,7 +8,6 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/maypok86/otter v1.2.4
 	github.com/prometheus/client_golang v1.23.0
-	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/zap v1.27.0
 	go.uber.org/zap/exp v0.3.0
@@ -26,7 +25,6 @@ require (
 	github.com/gammazero/deque v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
-	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -38,7 +36,6 @@ require (
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
-	github.com/spf13/pflag v1.0.9 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
