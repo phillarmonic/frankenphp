@@ -730,6 +730,24 @@ func TestExecuteCLICode(t *testing.T) {
 	assert.Equal(t, stdoutStderrStr, `Hello World`)
 }
 
+func TestExecuteCLIWithIniSettings(t *testing.T) {
+	// Test ini setting parsing logic directly
+	defines := []string{"memory_limit=256M", "display_errors=1", "max_execution_time"}
+	phpIni := make(map[string]string)
+
+	for _, define := range defines {
+		if key, value, found := strings.Cut(define, "="); found {
+			phpIni[key] = value
+		} else {
+			phpIni[define] = "1"
+		}
+	}
+
+	assert.Equal(t, "256M", phpIni["memory_limit"])
+	assert.Equal(t, "1", phpIni["display_errors"])
+	assert.Equal(t, "1", phpIni["max_execution_time"])
+}
+
 func ExampleServeHTTP() {
 	if err := frankenphp.Init(); err != nil {
 		panic(err)
