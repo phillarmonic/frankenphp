@@ -43,6 +43,12 @@ You can also run command-line scripts with:
 frankenphp php-cli /path/to/your/script.php
 ```
 
+Or with custom PHP configuration:
+
+```console
+frankenphp php-cli -d memory_limit=256M /path/to/your/script.php
+```
+
 ### Docker
 
 Alternatively, [Docker images](https://frankenphp.dev/docs/docker/) are available:
