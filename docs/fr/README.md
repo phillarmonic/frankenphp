@@ -42,6 +42,13 @@ Vous pouvez également exécuter des scripts en ligne de commande avec :
 frankenphp php-cli /path/to/your/script.php
 ```
 
+Vous pouvez également définir des directives INI PHP à l'exécution en utilisant le flag `-d`, similaire au CLI PHP standard :
+
+```console
+frankenphp php-cli -d memory_limit=512M -d display_errors=1 /path/to/your/script.php
+frankenphp php-cli -d memory_limit=1G -r "echo 'Limite mémoire: ' . ini_get('memory_limit');"
+```
+
 ### Docker
 
 Des [images Docker](https://frankenphp.dev/docs/fr/docker/) sont également disponibles :
