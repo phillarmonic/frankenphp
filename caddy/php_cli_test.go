@@ -5,16 +5,16 @@ import (
 	"testing"
 
 	caddycmd "github.com/caddyserver/caddy/v2/cmd"
-	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPHPCLIFlagParsing(t *testing.T) {
-	// Test parsing various -d flag combinations
+	// Test parsing various -d flag combinations using our manual parsing logic
 	tests := []struct {
-		name     string
-		args     []string
-		expected map[string]string
+		name         string
+		args         []string
+		expected     map[string]string
+		expectedArgs []string
 	}{
 		{
 			name: "single key=value",
@@ -22,6 +22,7 @@ func TestPHPCLIFlagParsing(t *testing.T) {
 			expected: map[string]string{
 				"memory_limit": "256M",
 			},
+			expectedArgs: []string{"script.php"},
 		},
 		{
 			name: "multiple key=value pairs",
@@ -30,6 +31,7 @@ func TestPHPCLIFlagParsing(t *testing.T) {
 				"memory_limit":   "256M",
 				"display_errors": "1",
 			},
+			expectedArgs: []string{"script.php"},
 		},
 		{
 			name: "boolean flag without value",
@@ -37,6 +39,7 @@ func TestPHPCLIFlagParsing(t *testing.T) {
 			expected: map[string]string{
 				"display_errors": "1",
 			},
+			expectedArgs: []string{"script.php"},
 		},
 		{
 			name: "mixed flags",
@@ -46,38 +49,78 @@ func TestPHPCLIFlagParsing(t *testing.T) {
 				"display_errors":     "1",
 				"max_execution_time": "30",
 			},
+			expectedArgs: []string{"script.php"},
+		},
+		{
+			name: "combined format -d=key=value",
+			args: []string{"-d=memory_limit=256M", "script.php"},
+			expected: map[string]string{
+				"memory_limit": "256M",
+			},
+			expectedArgs: []string{"script.php"},
+		},
+		{
+			name: "with -r flag should preserve it",
+			args: []string{"-d", "memory_limit=256M", "-r", "echo 'test';"},
+			expected: map[string]string{
+				"memory_limit": "256M",
+			},
+			expectedArgs: []string{"-r", "echo 'test';"},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a fresh command for each test to avoid flag accumulation
-			testCmd := &cobra.Command{
-				Use: "test",
-			}
-			testCmd.Flags().StringArrayP("define", "d", []string{}, "Define INI entry (key=value)")
-
-			// Parse the arguments
-			testCmd.SetArgs(tt.args)
-			err := testCmd.Execute()
-			assert.NoError(t, err)
-
-			// Get the parsed values
-			defines, err := testCmd.Flags().GetStringArray("define")
-			assert.NoError(t, err)
-
-			// Convert to map like our implementation does
+			// Test our manual parsing logic directly
+			allArgs := tt.args
+			var args []string
 			phpIni := make(map[string]string)
-			for _, define := range defines {
-				if key, value, found := strings.Cut(define, "="); found {
-					phpIni[key] = value
+
+			for i := 0; i < len(allArgs); i++ {
+				arg := allArgs[i]
+
+				if arg == "-d" || arg == "--define" {
+					// Next argument should be the value
+					if i+1 < len(allArgs) {
+						i++
+						define := allArgs[i]
+						if key, value, found := strings.Cut(define, "="); found {
+							phpIni[key] = value
+						} else {
+							// Boolean flags default to "1" (enabled)
+							phpIni[define] = "1"
+						}
+					}
+				} else if strings.HasPrefix(arg, "-d=") {
+					// Combined -d=key=value format
+					define := strings.TrimPrefix(arg, "-d=")
+					if key, value, found := strings.Cut(define, "="); found {
+						phpIni[key] = value
+					} else {
+						phpIni[define] = "1"
+					}
+				} else if strings.HasPrefix(arg, "--define=") {
+					// Combined --define=key=value format
+					define := strings.TrimPrefix(arg, "--define=")
+					if key, value, found := strings.Cut(define, "="); found {
+						phpIni[key] = value
+					} else {
+						phpIni[define] = "1"
+					}
 				} else {
-					phpIni[define] = "1"
+					// This is not a -d flag, so collect remaining args
+					args = append(args, allArgs[i:]...)
+					break
 				}
 			}
 
 			// Verify the results
 			assert.Equal(t, tt.expected, phpIni)
+
+			// Verify remaining args
+			if tt.expectedArgs != nil {
+				assert.Equal(t, tt.expectedArgs, args)
+			}
 		})
 	}
 }
